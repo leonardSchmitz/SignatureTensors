@@ -2125,7 +2125,8 @@ function weighted_shift(matrix::AbstractMatrix)
     out = zeros(eltype(matrix), m, n)   # generic element type
     for i in 2:m
         for j in 2:n
-            coef = 1 // (factorial(i-1) * factorial(j-1))
+#            coef = 1 // (factorial(i-1) * factorial(j-1))
+            coef = 1 // ((i-1) * (j-1))
             out[i, j] = coef * matrix[i-1, j-1]
         end
     end

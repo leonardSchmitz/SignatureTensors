@@ -760,26 +760,59 @@ Chen product (truncated tensor algebra multiplication) of two signatures.
   of `a` and `b`.
 """
 
+
+
 function Base.:*(a::TruncatedTensorAlgebraElem{R,E}, 
                  b::TruncatedTensorAlgebraElem{R,E}) where {R,E}
     if parent(a).sequence_type == :iis && parent(b).sequence_type == :iis
-      A = parent(a)
-      k = truncation_level(A)
+        A=parent(a)
+        k=truncation_level(A)
+        res_seq_a=tensor_sequence(a)
+        res_seq_b=tensor_sequence(b)
 
-      F, s = free_trunc_sig_alg_multiv(k, 2)
-      chen = prod([free_sig_from_sample(i, F) for i in 1:2])
-      return evaluate(chen, [a, b])
-    elseif parent(a).sequence_type == :p2id && parent(b).sequence_type == :p2id
-      A = parent(a)
-      k = truncation_level(A)
-
-      F, s = free_trunc_sig_alg_multiv(k, 2)
-      chen = prod([free_sig_from_sample(i, F) for i in 1:2])
-      return evaluate(chen, [a, b])
+        res_seq_new=Vector{Array{E}}(undef, k+1)
+        res_seq_new[1]=res_seq_a[1]
+        res_seq_new[2]=res_seq_a[2]+res_seq_b[2]
+        if k>=2
+            for i in 2:k
+                temp=res_seq_a[i+1]+res_seq_b[i+1]
+                for j in 1:i-1
+                    temp+=concatenate_tensors(res_seq_a[j+1], res_seq_b[i-j+1])
+                end
+            res_seq_new[i+1]=temp
+            end
+        end
+        return TruncatedTensorAlgebraElem(A, res_seq_new)
     else
-        throw(ArgumentError("* only defined for sequence_type == :iis, :p2id, or :p2"))
+        throw(ArgumentError("Chen product only defined for sequence_type == :iis"))
     end
 end
+
+##################################################################################
+#.    Previous implementation using free algebra evaluation.
+################################################################################
+
+
+#function Base.:*(a::TruncatedTensorAlgebraElem{R,E}, 
+#                 b::TruncatedTensorAlgebraElem{R,E}) where {R,E}
+#    if parent(a).sequence_type == :iis && parent(b).sequence_type == :iis
+#      A = parent(a)
+#      k = truncation_level(A)
+
+#      F, s = free_trunc_sig_alg_multiv(k, 2)
+#      chen = prod([free_sig_from_sample(i, F) for i in 1:2])
+#      return evaluate(chen, [a, b])
+#    elseif parent(a).sequence_type == :p2id && parent(b).sequence_type == :p2id
+#      A = parent(a)
+#      k = truncation_level(A)
+
+#      F, s = free_trunc_sig_alg_multiv(k, 2)
+#      chen = prod([free_sig_from_sample(i, F) for i in 1:2])
+#      return evaluate(chen, [a, b])
+#    else
+#        throw(ArgumentError("* only defined for sequence_type == :iis, :p2id, or :p2"))
+#    end
+#end
 
 
 #function Base.:*(a::TruncatedTensorAlgebraElem, b::TruncatedTensorAlgebraElem)

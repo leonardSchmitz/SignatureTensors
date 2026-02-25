@@ -392,7 +392,7 @@ inside the truncated tensor algebra `T`.
 sig
 function sig(T::TruncatedTensorAlgebra{R},
              path_type::Symbol; 
-             coef=[], m=0, n=0, 
+             coef=[], shape=[], 
              composition::Vector{Int}=Int[],
              regularity::Int=0,
              algorithm::Symbol=:default) where R
@@ -425,17 +425,17 @@ function sig(T::TruncatedTensorAlgebra{R},
         if path_type==:point && coef==[] && algorithm == :default
             return one(T)
         elseif path_type==:mono && coef==[] && algorithm == :default
-            return moment_membrane_p2id(T, m, n)
+            return moment_membrane_p2id(T, shape[1], shape[2])
         elseif path_type==:axis && coef==[] && (algorithm == :default || algorithm == :AFS19)
-            return sigAxis_p2id_ClosedForm(T,m,n)
+            return sigAxis_p2id_ClosedForm(T,shape[1],shape[2])
         elseif path_type==:axis && coef==[] && (algorithm == :Chen)
-            return sigAxis_p2id_Chen(T,m,n)
+            return sigAxis_p2id_Chen(T,shape[1],shape[2])
         elseif path_type==:poly && (algorithm == :default)
             return sig2parPoly(T,coef)
         elseif path_type==:pwln && algorithm == :congruence
             return sig_Axis_pwln_p2id(T,coef)
         elseif path_type==:pwbln && (algorithm == :default || algorithm == :congruence)
-            return sig_pwbln_p2id_Congruence(T,coef,m,n)
+            return sig_pwbln_p2id_Congruence(T,coef,shape[1],shape[2])
         else 
             throw(ArgumentError("sig not supported for given arguments"))    
         end
@@ -1099,7 +1099,6 @@ function sig_segment_TA(T::TruncatedTensorAlgebra{R}, v::Vector{E}) where {R,E}
 
     # --- signature mono in dimension 1 ---
     C = sig_mono_TA(T1)
-
     # --- Convert the vector v in a column matrix d×1 ---
     v_mat = reshape(v, d, 1)
 
@@ -1817,47 +1816,52 @@ function applyMatrixToTTA(A::AbstractMatrix, X::TruncatedTensorAlgebraElem)
 
     seq_old = tensor_sequence(X)
 
-    # Container for new tensors
-    resSeq = Vector{typeof(seq_old[1])}(undef, k)
 
-    for j in 1:k
-        T = seq_old[j]
+    # Container for new tensors
+    resSeq = similar(seq_old)
+
+    
+    resSeq[1] = seq_old[1]
+
+    for j in 2:(k+1)
+            T = seq_old[j]
+            order = j - 1  
 
         if seq_type == :p2id
             S = T
-            for mode in 1:j
+            for mode in 1:order
                 S = mode_product(S, A, mode, R)
             end
             resSeq[j] = S
 
         elseif seq_type == :p2
-            perms = permutations_1_to_j(j)
+            perms = permutations_1_to_j(order)  
 
-            dims = ntuple(_ -> d_new, j)
-            Tperm = Array{eltype(T)}(undef, (dims..., factorial(j)))
+            dims = ntuple(_ -> d_new, order)
+            Tperm = Array{eltype(T)}(undef, (dims..., factorial(order)))
 
             for (perm_idx, perm) in enumerate(perms)
                 S = similar(T)
 
                 # permute indices
-                for idx in Iterators.product(ntuple(_ -> 1:size(T,1), j)...)
-                    idx_perm = idx[perm]
-                    S[idx...] = T[idx_perm...]
+                for idx in Iterators.product(ntuple(_ -> 1:size(T,1), order)...)
+                        idx_perm = idx[perm]
+                        S[idx...] = T[idx_perm...]
                 end
 
-                # apply A along all modes
-                for mode in 1:j
+                    # apply A along all modes
+                for mode in 1:order
                     S = mode_product(S, A, mode, R)
                 end
 
-                Tperm[ntuple(_ -> :, j)..., perm_idx] = S
+                    Tperm[ntuple(_ -> :, order)..., perm_idx] = S
+                end
+                resSeq[j] = Tperm   
+            else
+                error("sequence_type must be :p2 or :p2id")
             end
-
-            resSeq[j] = Tperm
-        else
-            error("sequence_type must be :p2 or :p2id")
         end
-    end
+
 
     # New parent with updated ambient dimension
     Tnew = TruncatedTensorAlgebra(R, d_new, k, seq_type)
@@ -1974,11 +1978,11 @@ function sig_pwbln_p2id_Congruence(
     A::AbstractMatrix{S},  
     m::Int, n::Int         # dimension
 ) where {S}
-
+    
     # --------------------------------------------------
     # Consistency check
     # --------------------------------------------------
-    size(A) == (m, n) || error("A must have size (m, n)")
+    size(A,2) == (base_dimension(T)) || error("A must have size (d_new, base_dimension(T))")
     m * n == base_dimension(T) || error("m * n must equal T.base_dimension")
 
     # --------------------------------------------------

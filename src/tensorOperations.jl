@@ -132,7 +132,7 @@ function mode_product(T::AbstractArray, A::AbstractMatrix, mode::Int, R)
     dims[mode] == d || error("Mode $mode has size $(dims[mode]), expected $d")
 
     # Convert A to base ring elements
-    A_ring = reshape([one_elem(R) * a for a in A], size(A))
+    A_ring = reshape([one(R) * a for a in A], size(A))
 
     # Move the mode-th axis to the first dimension
     perm = (mode, setdiff(1:ndims(T), mode)...)

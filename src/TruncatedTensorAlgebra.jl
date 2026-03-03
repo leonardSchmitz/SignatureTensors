@@ -456,13 +456,13 @@ function sig(T::TruncatedTensorAlgebra{R},
             if ndims(coef) == 2
                 return sig_pwbln_p2id_Congruence(T, coef, shape[1], shape[2])
             else
-                return sig_pwbln_p2id_Congruence_fromTensor(T, coef, shape[1], shape[2])
+                return sig_pwbln_p2id_Congruence_fromTensor(T, coef, size(coef,1), size(coef,2))
             end
         elseif path_type == :pwbln && algorithm == :LS
             if ndims(coef) == 2
                 return sigPiecewiseBilinear_TA(T, coef, shape)
             else
-               return sigPiecewiseBilinear_fromTensor_TA(T, coef, shape)
+               return sigPiecewiseBilinear_fromTensor_TA(T, coef, [size(coef,1), size(coef,2)])
             end
         else
             throw(ArgumentError("sig not supported for given arguments"))
@@ -1828,8 +1828,8 @@ function moment_membrane_p2id(TTA::TruncatedTensorAlgebra{R}, m::Int, n::Int) wh
         error("m * n must equal the ambient dimension of TTA")
     end
 
-    seq = Vector{Any}(undef, k)
-
+    seq = Vector{Any}(undef, k+1)
+    seq[1]=one(base_algebra(TTA))  # Level 0: scalar 1
     for j in 1:k
         s_m = moment_path_level(TTA, m, j)
         s_n = moment_path_level(TTA, n, j)
@@ -1845,7 +1845,7 @@ function moment_membrane_p2id(TTA::TruncatedTensorAlgebra{R}, m::Int, n::Int) wh
             tensor_j[idx_tuple...] = getindex(s_m, idx_m...) * getindex(s_n, idx_n...)
         end
 
-        seq[j] = tensor_j
+        seq[j+1] = tensor_j
     end
 
     E = eltype(seq[1])

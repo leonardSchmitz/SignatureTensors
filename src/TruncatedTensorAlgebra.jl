@@ -437,6 +437,8 @@ function sig(T::TruncatedTensorAlgebra{R},
             return sig_poly_TA(T,coef)
         elseif path_type == :poly && ( algorithm == :ARS26 )
             return sig_poly_TA_ARS(T,coef)
+        elseif path_type == :spline 
+            return sig_spline(T,coef,composition,regularity) 
         else
             throw(ArgumentError("sig not supported for given arguments"))
         end
@@ -462,7 +464,7 @@ function sig(T::TruncatedTensorAlgebra{R},
             else
                 return sig_pwbln_p2id_Congruence_fromTensor(T, coef, size(coef,1), size(coef,2))
             end
-        elseif path_type == :pwbln && algorithm == :LS
+        elseif path_type == :pwbln && algorithm == :LS26
             if ndims(coef) == 2
                 return sigPiecewiseBilinear_TA(T, coef, shape)
             else
@@ -663,6 +665,24 @@ function sig_pw_mono_ALS26(TTS::TruncatedTensorAlgebra,m::Vector{Int},r)
     return Array(coreSplineTrafo(m,r))*res
   end
 end
+
+
+function sig_spline(TTS::TruncatedTensorAlgebra{R},coeffs::AbstractMatrix{E},m::Vector{Int},r) where {R,E}
+  d = base_dimension(TTS)
+  @assert size(coeffs,1) == d "Dimensions mismatch"
+  ms=size(coeffs,2)
+           
+  if ms != sum(m) - r*(length(m) -1)
+    error("m must be a composition of size(coefffs,2)")
+  end
+  k = truncation_level(TTS) 
+  R0 = base_algebra(TTS)
+  T2=TruncatedTensorAlgebra(R0,ms,k)
+  TM=sig_pw_mono_chen(T2,m,r)
+  spline_path = matrix_tensorAlg_congruence_TA(coeffs, TM)
+  return spline_path
+end
+
 
 
 # Base functions

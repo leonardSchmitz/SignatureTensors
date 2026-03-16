@@ -2,14 +2,14 @@
 
     @testset "Pwln recovery with 1 solution d=m=4 and k=3" begin
         d =4; k = 3;
-        R, a = polynomial_ring(QQ, :a => (1:d,1:d));
-        C= sig(TruncatedTensorAlgebra(R,d,k),:axis); 
+    #    R, a = polynomial_ring(QQ, :a => (1:d,1:d));
+        C= sig(TruncatedTensorAlgebra(QQ,d,k),:axis); 
         nr_rec = 3;
         for t in (1:nr_rec)
           A = generic_transform_GL(d);
           G = A*C;
-          res1 = recover(S,C,algorithm=:Buchberger)
-          res2 = recover(S,C,algorithm=:Sch25)
+          res1 = recover(G,C=C,algorithm=:Buchberger)
+          res2 = recover(G,C=C,algorithm=:Sch25)
           @test res1==res2
         end
     end

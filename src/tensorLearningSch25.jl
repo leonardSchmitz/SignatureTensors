@@ -160,12 +160,18 @@ function tensor_learning_3(G_)
   return Q
 end
 
-
+function leading_coefficient_and_zero_TL(p)
+    if is_zero(p)
+        return leading_coefficient(one(parent(p))) - leading_coefficient(one(parent(p))) # TODO: its zero 
+    else
+        return leading_coefficient(p)
+    end
+end
 
 
 function recover(S::TruncatedTensorAlgebraElem; 
-                 C::Union{TruncatedTensorAlgebraElem,Nothing}=nothing, 
-                 algorithm::Symbol=:default)
+                 C::Union{TruncatedTensorAlgebraElem, Nothing}=nothing,
+                 algorithm::Symbol = :default)
 
     d = base_dimension(parent(S))
     k = truncation_level(parent(S))
@@ -174,7 +180,7 @@ function recover(S::TruncatedTensorAlgebraElem;
         @assert C !== nothing "Argument C must be provided for algorithm=:default"
         m = base_dimension(parent(C))  
       
-        R, a = PolynomialRing(QQ, :a => (1:d, 1:m))
+        R, a = polynomial_ring(QQ, :a => (1:d, 1:m))
 
         I = ideal(R, vec(S - a*C))
 
@@ -182,10 +188,10 @@ function recover(S::TruncatedTensorAlgebraElem;
         @assert degree(I) == 1 "Ideal degree should be 1"
 
    
-        return leading_coefficient.(normal_form.(a, Ref(I)))
+        return leading_coefficient_and_zero_TL.(normal_form.(a, Ref(I)))
 
     elseif algorithm == :Sch25
-        @assert eltype(S.elem[1]) <: Rational "Ground algebra must be QQ for Sch25"
+        @assert base_algebra(parent(S)) == QQ "Ground algebra must be QQ for Sch25"
         @assert k == 3 "Algorithm Sch25 relys on truncation level k=3"
 
         S_array =  6 .* S.elem[4] 

@@ -8,8 +8,9 @@ makedocs(
         "Home" => "index.md",
         "API" => "api.md",
     ],
-    strict = false,  
+    checkdocs = :warn,  
 )
+
 
 
 deploydocs(

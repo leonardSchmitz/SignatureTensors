@@ -1,4 +1,4 @@
-# API Reference
+# Documentation
 
 ```@docs
 SignatureTensors.SignatureTensors

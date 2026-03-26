@@ -6,7 +6,7 @@ makedocs(
     modules = [SignatureTensors],
     pages = [
         "Home" => "index.md",
-        "API" => "api.md",
+        "Documentation" => "api.md",
     ],
     checkdocs = :warn,  
 )

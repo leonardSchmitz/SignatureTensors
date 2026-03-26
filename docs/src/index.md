@@ -48,16 +48,15 @@ d, k = 2, 3
 T = TruncatedTensorAlgebra(QQ, d, k)
 
 # Signature of the canonical axis path
-sig(T, :axis)
+C=sig(T, :axis)
 
 # Signature of a polynomial path t ↦ (t + 2t², 3t + 4t²)
-sig(T, :poly, coef = QQ.([1 2; 3 4]))
+S=sig(T, :pwln, coef = QQ.([1 2; 3 4]))
 
 # Path recovery from a signature tensor
-d, k, m = 2, 4, 4
-A = QQ.([6 -2 6 -10; 7 -4 10 -4])
-S = sig(TruncatedTensorAlgebra(QQ, d, k), :pwln, coef = A)
-recover(S)
+
+
+recover(S,C=C)
 ```
 
 ---
@@ -70,7 +69,7 @@ Depth = 2
 ```
 
 ---
-
+<!--
 ## References
 
 This package implements and extends methods from the following works:
@@ -79,8 +78,9 @@ This package implements and extends methods from the following works:
 - Pfeffer, Seigal, Sturmfels — *Learning Paths from Signature Tensors*, SIAM J. Matrix Anal., 2019.
 - Clausel et al. — *The Barycenter in Free Nilpotent Lie Groups*, SIAM J. Appl. Algebra Geom., 2024.
 - Améndola, Schmitz — *Learning Barycenters from Signature Matrices*, arXiv:2509.07815, 2025.
-- Lotter, Schmitz — *Signature Matrices of Membranes*, Algebraic Statistics, 2026.
 - Schmitz — *An Efficient Algorithm for Tensor Learning*, arXiv:2512.14218, 2025.
+- Lotter, Schmitz — *Signature Matrices of Membranes*, Algebraic Statistics, 2026.
+-->
 
 The full reference list is available in the accompanying paper:
 > G. Riffo and L. Schmitz, *Signature Tensors in OSCAR*, 2025.  

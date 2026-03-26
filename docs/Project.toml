@@ -1,3 +1,4 @@
 [deps]
+BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 SignatureTensors = "5c9b64c6-6bff-409c-98cc-3e0c4aaf8bc2"

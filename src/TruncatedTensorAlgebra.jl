@@ -533,7 +533,7 @@ function sig(T::TruncatedTensorAlgebra{R},
             return sig_pwln_TA_Congruence(T, Array(coef))
         elseif geom_type == :pwln && (algorithm == :Chen || algorithm == :default)
             return sig_pwln_TA_chen(T, Array(coef))
-        elseif geom_type == :pwln && algorithm == :LS
+        elseif geom_type == :pwln && algorithm == :LS26
             return sig_pwln_TA_LS(T,Array(coef))
         elseif geom_type == :pwmon && algorithm == :Chen
             return sig_pw_mono_chen(T, composition, regularity)

@@ -311,6 +311,57 @@ function tensor_sequence_constructor(A::TruncatedTensorAlgebra; is_one=true)
 end
 
 
+function sig_segment_CF(T::TruncatedTensorAlgebra{R}, v::Vector{E}) where {R,E}
+    k_max = truncation_level(T)
+    d     = base_dimension(T)
+    alg   = base_algebra(T)
+
+     #@assert length(v) == d "Dimension of v does not match base algebra"
+
+    R_tensor = base_algebra(T)
+    R_matrix = parent(v[1])   # obtener el ring de los elementos de v
+    Rnew = common_ring(R_tensor, R_matrix)  # ring común
+    d_new = length(v)
+    Tnew = TruncatedTensorAlgebra(Rnew, d_new, k_max, :iis)
+
+
+    seq = Vector{Array{typeof(one(Rnew))}}(undef, k_max + 1)
+
+    for k in 0:k_max
+        if k == 0
+            seq[1] = fill(one(Rnew))   # nivel 0
+        else
+
+            seq[k+1] = _sig_level_tensor(v, k, Rnew)
+        end
+    end
+
+
+    return TruncatedTensorAlgebraElem(Tnew, seq)
+end
+
+
+function _sig_level_tensor(v::Vector{E}, k::Int, Rnew) where E
+    d = length(v)
+    fact = factorial(k)
+    Tcoeff = Rnew
+
+    if k == 1
+        # nivel 1: vector mapeado a Rnew
+        return [Tcoeff(vi) for vi in v]
+    else
+        # inicializar tensor d×d×…×d de orden k
+        dims = ntuple(_ -> d, k)
+        T = Array{typeof(Tcoeff(one(v[1])))}(undef, dims...)
+
+        # llenar el tensor
+        for I in Iterators.product(ntuple(_ -> 1:d, k)...)
+            T[I...] = prod(Tcoeff(v[i]) for i in I) / Tcoeff(fact)
+        end
+
+        return T
+    end
+end
 
 function _C0_seq_TA(_trunc_level::Int, _order::Int, _alg, is_one::Bool)
     return [_C0_TA(_k, _order, _alg, is_one) for _k in 0:_trunc_level]
@@ -515,8 +566,10 @@ function sig(T::TruncatedTensorAlgebra{R}, geom_type::Symbol; coef=[], shape=[],
     if seq_type == :iis
         if geom_type == :point && coef == [] && algorithm == :default
             return one(T)
-        elseif geom_type == :segment
+        elseif geom_type == :segment && (algorithm == :default || algorithm == :congruence)
             return sig_segment_TA(T, Array(coef))
+        elseif geom_type == :segment && algorithm == :CF 
+            return sig_segment_CF(T, Array(coef))
         elseif geom_type == :axis && coef == [] && (algorithm == :default || algorithm == :AFS19)
             return sigAxis_TA_ClosedForm(T)
         elseif geom_type == :axis && coef == [] && algorithm == :Chen

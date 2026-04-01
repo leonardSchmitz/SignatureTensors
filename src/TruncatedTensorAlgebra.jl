@@ -30,7 +30,7 @@ export TruncatedTensorAlgebra,
        #sig2parPoly
 
 """
-TruncatedTensorAlgebra{R}
+    TruncatedTensorAlgebra{R}
 
 Structure that stores a **truncated signature** of a rough path or a
 two-parameter object (membrane).
@@ -50,15 +50,14 @@ Concrete signatures are stored as elements of this algebra via
 
 - `sequence_type::Symbol`  
   Type of signature:
-  - `:iis`   — iterated-integrals signature of a rough path,
+  - `:iis`   — iterated-integrals signature of a rough path (default),
   - `:p2id`  — two-parameter signature for membranes
 
-# Mathematical meaning
-This object represents the truncated signature space
-```math
-S^{k}(X) = (1, S^1(X), dots, S^k(X)) 
+# Example
+```julia-repl
+julia> A = TruncatedTensorAlgebra(QQ, 2, 3; sequence_type = :iis)
+TruncatedTensorAlgebra(QQ, 2, 3, :iis)
 ```
-where the precise tensor structure depends on `sequence_type`.
 
 See also [`TruncatedTensorAlgebraElem`](@ref).
 """
@@ -91,12 +90,7 @@ a fixed truncation level.
     - `elem[:,:]`: level 2,
     - `elem[:,:,:, ..., :]`: level k,
 
-# Mathematical meaning
-This object represents a truncated signature
-```math
-S^{k}(X) = (1, S^1(X), ..., S^k(X))
-```
-where each `S^i(X)` is a tensor of order `i`.
+See also [`TruncatedTensorAlgebra`](@ref TruncatedTensorAlgebra)
 """
 struct TruncatedTensorAlgebraElem{R,E}
     parent::TruncatedTensorAlgebra{R}
@@ -189,10 +183,11 @@ Return the tensor sequence representing the truncated signature.
 
 # Description
 The result is a vector of tensors:
-- index `1`: level 1 tensor (vector),
-- index `2`: level 2 tensor (matrix),
+- index `1`: level 0 tensor (escalar),
+- index `2`: level 1 tensor (vector),
+- index `3`: level 2 tensor (matrix),
 - ...
-- index `k`: level `k` tensor.
+- index `k`: level `k-1` tensor.
 
 Each entry is an array of order equal to its level.
 
@@ -202,49 +197,6 @@ Each entry is an array of order equal to its level.
 tensor_sequence(a::TruncatedTensorAlgebraElem) = a.elem
 
 
-"""
-    TruncatedTensorAlgebra(R, d::Int, k::Int; sequence_type = :iis)
-
-Create a container that stores **truncated signatures** of rough paths or
-two-parameter objects (membranes).
-
-# Arguments
-- `R`  
-  Base algebra of the signature coefficients.
-
-- `d::Int`  
-  Dimension of the underlying path or membrane.
-  Must satisfy `d ≥ 0`.
-
-- `k::Int`  
-  Truncation level of the signature.
-  Must satisfy `k ≥ 0`.
-
-# Keyword Arguments
-- `sequence_type::Symbol = :iis`  
-  Type of signature to be stored:
-  - `:iis`   — iterated-integrals signature of a rough path,
-  - `:p2id`  — signature of a membrane,
-
-# Returns
-- `TruncatedTensorAlgebra{typeof(R)}`
-
-# Errors
-- Throws an error if `d < 0`.
-- Throws an error if `k < 0`.
-- Throws an error if `sequence_type` is not one of
-  `(:iis, :p2id, :p2)`.
-
-# Example
-# Examples
-```julia-repl
-julia> A = TruncatedTensorAlgebra(QQ, 2, 3; sequence_type = :iis)
-TruncatedTensorAlgebra(QQ, 2, 3, :iis)
-```
-
-This creates a container for truncated signatures of a 2-dimensional
-rough path, truncated at level 3.
-"""
 function TruncatedTensorAlgebra(R, d::Int, k::Int; sequence_type::Symbol=:iis)
 
     d >= 0 || error("ambient dimension must be >= 0")
@@ -488,15 +440,7 @@ end
 
 
 """
-sig(
-    T::TruncatedTensorAlgebra,
-    geom_type::Symbol;
-    coef = [],
-    shape = [],
-    composition::Vector{Int} = Int[],
-    regularity::Int = 0,
-    algorithm::Symbol = :default
-)
+    sig(T::TruncatedTensorAlgebra, geom_type::Symbol; coef = [], shape = [], composition::Vector{Int} = Int[], regularity::Int = 0,algorithm::Symbol = :default)
 
 Compute the **truncated signature** associated with a specified path type
 inside the truncated tensor algebra `T`.
@@ -534,12 +478,12 @@ inside the truncated tensor algebra `T`.
     Piecewise monomial path. Optional arguments:
       - `composition` – Exponents of each segment
       - `regularity` – Regularity of the path
-      - `algorithm` – `:Chen` or `:ALS26` 
+      - `algorithm` – `:Chen` or `:ALS26` [amendola2026signaturevarietiessplines](@cite)
 
   - `:poly`  
     Polynomial path. Optional `algorithm`:
       - `:congruence` or `:default`
-      - `:ARS26` – Alternative method
+      - `:ARS26` – Alternative method [bib:ARS26](@cite)
 
   - `:spline`  
     Spline path with optional `coef`, `composition`, and `regularity`
@@ -547,9 +491,9 @@ inside the truncated tensor algebra `T`.
   ## For `:p2id` sequence type
   - `:point` – Constant path
   - `:mono` – Monomial membrane
-  - `:axis` – Axis-aligned membrane, `algorithm` can be `:AFS19` or `:Chen`
+  - `:axis` – Axis-aligned membrane, `algorithm` can be `:AFS19`[AFS2019](@cite) or `:Chen`
   - `:poly` – Polynomial membrane; if `coef` is 2D, uses `sig2parPoly_fromMatrix`
-  - `:pwbln` – Piecewise bilinear path; `algorithm` can be `:congruence` or `:LS26`
+  - `:pwbln` – Piecewise bilinear path; `algorithm` can be `:congruence` or `:LS26` [amendola2026signaturevarietiessplines](@cite)
 
 # Notes
 - The function automatically dispatches based on `sequence_type(T)`:
@@ -568,7 +512,7 @@ function sig(T::TruncatedTensorAlgebra{R}, geom_type::Symbol; coef=[], shape=[],
             return one(T)
         elseif geom_type == :segment && (algorithm == :default || algorithm == :congruence)
             return sig_segment_TA(T, Array(coef))
-        elseif geom_type == :segment && algorithm == :CF 
+        elseif geom_type == :segment && algorithm == :closedform 
             return sig_segment_CF(T, Array(coef))
         elseif geom_type == :axis && coef == [] && (algorithm == :default || algorithm == :AFS19)
             return sigAxis_TA_ClosedForm(T)
@@ -587,9 +531,9 @@ function sig(T::TruncatedTensorAlgebra{R}, geom_type::Symbol; coef=[], shape=[],
         elseif geom_type == :pwmon && (algorithm == :ALS26 || algorithm == :default)
             return sig_pw_mono_ALS26(T, composition, regularity)
         elseif geom_type == :poly && ( algorithm == :congruence || algorithm == :default )
-            return sig_poly_TA(T,coef)
+            return sig_poly_TA(T,Array(coef))
         elseif geom_type == :poly && ( algorithm == :ARS26 )
-            return sig_poly_TA_ARS(T,coef)
+            return sig_poly_TA_ARS(T,Array(coef))
         elseif geom_type == :spline 
             return sig_spline(T,coef,composition,regularity) 
         else

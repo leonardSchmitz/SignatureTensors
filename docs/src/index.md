@@ -1,8 +1,13 @@
+```@meta
+CollapsedDocStrings=true
+```
+
+
 # SignatureTensors.jl
 
 **SignatureTensors.jl** is a Julia package for computing and manipulating signature tensors of paths and membranes, built on top of the [OSCAR](https://www.oscar-system.org) computer algebra system.
 
-> **Version:** 0.1 — No support is guaranteed.
+> **Version:** 0.5 — No support is guaranteed.
 
 ---
 
@@ -51,10 +56,10 @@ T = TruncatedTensorAlgebra(QQ, d, k)
 C=sig(T, :axis)
 
 # Signature of a polynomial path t ↦ (t + 2t², 3t + 4t²)
-S=sig(T, :pwln, coef = QQ.([1 2; 3 4]))
+S=sig(T, :pwln, coef = QQ.[1 2; 3 4])
 
 # Path recovery from a signature tensor
-recover(S,C=C)
+recover(S,Co=C)
 ```
 
 ---

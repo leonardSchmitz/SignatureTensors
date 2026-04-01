@@ -8,8 +8,8 @@
         for t in (1:nr_rec)
           A = generic_transform_GL(d);
           G = A*C;
-          res1 = recover(G,C=C,algorithm=:Buchberger)
-          res2 = recover(G,C=C,algorithm=:Sch25)
+          res1 = recover(G,Co=C,algorithm=:Buchberger)
+          res2 = recover(G,Co=C,algorithm=:Sch25)
           @test res1==res2
         end
     end

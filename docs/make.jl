@@ -14,9 +14,35 @@ makedocs(
         "Documentation" => "api.md",
         "References" => "references.md",
     ],
+
     checkdocs = :warn,
     plugins = [bib],
+    highlightsig = true,
+
+    meta = Dict(
+        :CollapsedDocStrings => true
+    ),
+    
+    format = Documenter.HTML(
+        prettyurls = false
+    )
 )
+
+build_dir = joinpath(@__DIR__, "build")
+
+for (root, dirs, files) in walkdir(build_dir)
+    for file in files
+        if endswith(file, ".html")
+            path = joinpath(root, file)
+            html = read(path, String)
+
+            html = replace( html, r"(<summary[^>]*>.*?<code>)SignatureTensors\.(.*?</code>.*?</summary>)"s  => s"\1\2" )
+
+            write(path, html)
+        end
+    end
+end
+
 
 deploydocs(
     repo = "github.com/leonardSchmitz/signature-tensors-in-OSCAR.git",

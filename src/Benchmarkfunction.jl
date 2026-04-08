@@ -19,17 +19,21 @@ end
 function benchmark_signature(ds::Vector{Int}, ms::Vector{Int}, k::Int; 
                              signature_path::Symbol=:pwln,
                              seq_type::Symbol=:iis,
-                             num_samples::Int=100,algorithm::Symbol = :default,Seconds::Int=400,)
+                             num_samples::Int=100,algorithm::Symbol = :default,Seconds::Int=400,FloatN::Bool=false,)
 
-    # Diccionarios para guardar resultados
+   
     wall_time = Dict{Tuple{Int,Int}, Float64}()
     gc_time   = Dict{Tuple{Int,Int}, Float64}()
     memory    = Dict{Tuple{Int,Int}, Float64}()
-
+    Ralg=QQ
+    if FloatN
+        Ralg=Float64
+    end
     for d in ds
         for m in ms
-            T = TruncatedTensorAlgebra(QQ, d, k, seq_type)
-            A = QQ.(rand(-20:20, d, m))
+
+            T = TruncatedTensorAlgebra(Ralg, d, k, seq_type)
+            A = Ralg.(rand(-20:20, d, m))
             result = run_with_timeout_julia(() -> sig(T, signature_path, coef=A, algorithm=algorithm), Seconds)
 
             if result === false

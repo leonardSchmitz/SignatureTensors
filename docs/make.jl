@@ -45,7 +45,7 @@ end
 
 
 deploydocs(
-    repo = "github.com/leonardSchmitz/signature-tensors-in-OSCAR.git",
+    repo = "github.com/leonardSchmitz/SignatureTensors.jl",
     branch = "gh-pages",
     devurl = "docs",
     forcepush = true

@@ -86,7 +86,7 @@ a fixed truncation level.
 
 - `elem::Vector{Array{E}}`  
   Sequence of tensors representing the signature:
-    - `elem[:] level 1  (vector),
+    - `elem[:]` level 1  (vector),
     - `elem[:,:]`: level 2,
     - `elem[:,:,:, ..., :]`: level k,
 
@@ -107,7 +107,7 @@ Return the truncation level `k` of the truncated tensor algebra `F`.
 This corresponds to the highest tensor level stored in the truncated
 signature:
 ```math
-    S^{k}(X) = (1, S^1(X), ..., S^k(X))
+    S^{\\leq k}(X) = (1, S^1(X), ..., S^k(X))
 ```
 # Returns
 - `Int`: truncation level `k`.
@@ -498,7 +498,7 @@ inside the truncated tensor algebra `T`.
 # Notes
 - The function automatically dispatches based on `sequence_type(T)`:
   - `:iis` – Indexed iterated sequences (typical rough path)
-  - `:p2id` – 2-parameter indexed discrete sequences
+  - `:p2id` – 2-parameter (id) signature
   - `:p2` – Currently not supported
 - `coef` and `shape` provide the data describing the path when needed.
 - `composition` and `regularity` are used for piecewise monomial or spline paths.
@@ -783,7 +783,41 @@ end
 
 
 
+
 # Base functions
+"""
+    Base.getindex(x::TruncatedTensorAlgebraElem, w...)
+Return a tensor element of `x` at the level determined by the number of indices `w...`.
+
+# Description
+- Access tensors at different **levels** of a truncated tensor algebra element.
+- The number of indices `w` determines the **level**:
+    - `S[:]` → level 1 (vector)
+    - `S[:,:]` → level 2 (matrix)
+    - `S[:,:,:]` → level 3 (tensor)
+    - and so on for level `k`.
+
+# Arguments
+- `x::TruncatedTensorAlgebraElem` : element of a truncated tensor algebra.  
+- `w...` : indices to access the tensor at the given level.
+
+# Returns
+- A tensor of order `k`, indexed by `w...`.
+
+# Example
+```julia
+d, k = 2, 3
+T = TruncatedTensorAlgebra(QQ, d, k)
+
+# Signature of the canonical axis path
+S=sig(T, :axis)
+
+S[1]         # level 1
+S[:]      # level 1 full
+S[:, :]   # level 2
+S[:, :, :] # level 3
+```
+"""
 
 function Base.getindex(x::TruncatedTensorAlgebraElem, w...)
     k=length(w)
@@ -1403,7 +1437,7 @@ The barycenter is the unique group element ``m`` satisfying the implicit equatio
 in the associated Lie algebra. This is distinct from the naive mean (pointwise average of
 logarithms), as it preserves the group structure of the truncated signature space.
 
-See also: Améndola & Schmitz, *Learning Barycenters from Signature Matrices*, arXiv:2509.07815.
+See also: [amendola2025learning](@cite).
 
 # Arguments
 - `bs::Vector{TruncatedTensorAlgebraElem{R,E}}`: A nonempty vector of elements from the same
@@ -1412,9 +1446,9 @@ See also: Améndola & Schmitz, *Learning Barycenters from Signature Matrices*, a
   - `:default` — calls `bary_TA`, the general iterative algorithm valid for any truncation level .
   - `:geodesic` — geodesic midpoint formula `b₁ · exp(½ · log(b₁⁻¹ · b₂))`;
     only valid for exactly **2 elements**.
-  - `:CDMSSU24trunc2` — specialized algorithm from Theorem 4.11 of arXiv:2509.07815,
+  - `:CDMSSU24trunc2` — specialized algorithm from  [amendola2025learning; Theorem 4.11](@cite).
     valid only for truncation level `k = 2`.
-  - `:AS25trunc2` — closed-form expression from Theorem 4.11 of arXiv:2509.07815,
+  - `:AS25trunc2` — closed-form expression from [amendola2025learning; Theorem 4.11](@cite),
     valid only for truncation level `k = 2`.
 
 # Returns
@@ -1441,7 +1475,7 @@ bary(bs; algorithm = :AS25trunc2)
 - The barycenter is **not** the pointwise expectation of tensor entries; it lives in the
   free nilpotent Lie group and can be interpreted as the signature of some path.
 - For `k ≥ 3`, the barycenter differs from the naive mean in the Lie algebra;
-  see arXiv:2509.07815, Example 4.9.
+  see [amendola2025learning; Example 4.9](@cite).
 """
 function bary(bs::Vector{TruncatedTensorAlgebraElem{R, E}}; 
               algorithm::Symbol = :default) where {R, E}

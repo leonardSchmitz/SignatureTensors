@@ -172,30 +172,30 @@ end
 
 """
     recover(S::TruncatedTensorAlgebraElem; 
-            Co::Union{TruncatedTensorAlgebraElem, Nothing}=nothing,
+            core::Union{TruncatedTensorAlgebraElem, Nothing}=nothing,
             algorithm::Symbol = :default)
 
 Recover a linear transformation matrix `A` from a truncated signature `S`, solving
 the **tensor learning** (path recovery) inverse problem:
 ```math
-S = A \\cdot Co
+S = A \\cdot core
 ```
 
-where `Co` is a known core tensor (typically the signature of a canonical axis path)
+where `core` is a known core tensor (typically the signature of a canonical axis path)
 and `A` is the unknown invertible matrix encoding the path.
 
 The uniqueness of this solution (over the reals) is guaranteed by [PSS2019; Theorem 6.2](@cite)
-under the assumption that `S` lies in the orbit of `Co` under matrix-tensor congruence.
+under the assumption that `S` lies in the orbit of `core` under matrix-tensor congruence.
 
-See: L. Schmitz, *An Efficient Algorithm for Tensor Learning*, arXiv:2512.14218.
+See: [schmitz2025efficientalgorithmtensorlearning](@cite). 
 
 # Arguments
 - `S::TruncatedTensorAlgebraElem`: The observed truncated signature to invert.
-- `Co::Union{TruncatedTensorAlgebraElem, Nothing}`: The core tensor representing the
+- `core::Union{TruncatedTensorAlgebraElem, Nothing}`: The core tensor representing the
   signature of the canonical axis path. Required for `:default` and `:Buchberger`.
 - `algorithm::Symbol`: Algorithm used to recover `A`. Options:
-  - `:default` / `:Buchberger` — solves the system `S = A*C` via Gröbner basis
-    computation over `QQ`. Requires `C`, and the resulting ideal must be
+  - `:default` / `:Buchberger` — solves the system `S = A*core` via Gröbner basis
+    computation over `QQ`. Requires `core`, and the resulting ideal must be
     zero-dimensional of degree 1.
   - `:Sch25` — efficient algorithm from [schmitz2025efficientalgorithmtensorlearning](@cite), based on symbolic
     multilinear algebra and Gauß transformations on the third-order signature tensor.
@@ -208,27 +208,27 @@ See: L. Schmitz, *An Efficient Algorithm for Tensor Learning*, arXiv:2512.14218.
   i.e., `A = inv(tensor_learning_3(6 * S₃))` where `S₃` is the level-3 tensor of `S`.
 
 # Throws
-- `AssertionError` if `C` is not provided when using `:default` or `:Buchberger`.
+- `AssertionError` if `core` is not provided when using `:default` or `:Buchberger`.
 - `AssertionError` if the resulting ideal is not zero-dimensional or not of degree 1
   (when using `:default` / `:Buchberger`).
 - `AssertionError` if `base_algebra` is not `QQ` or `k ≠ 3` (when using `:Sch25`).
 - `ErrorException` if an unknown algorithm symbol is passed.
 """
 function recover(S::TruncatedTensorAlgebraElem; 
-                 Co::Union{TruncatedTensorAlgebraElem, Nothing}=nothing,
+                 core::Union{TruncatedTensorAlgebraElem, Nothing}=nothing,
                  algorithm::Symbol = :default)
 
     d = base_dimension(parent(S))
     k = truncation_level(parent(S))
 
     if algorithm == :default || algorithm == :Buchberger
-        @assert Co !== nothing "Argument Co must be provided for algorithm=:default"
-        m = base_dimension(parent(Co))  
+        @assert core !== nothing "Argument core must be provided for algorithm=:default"
+        m = base_dimension(parent(core))  
       
         R, a = polynomial_ring(QQ, :a => (1:d, 1:m))
 
-        I = ideal(R, vec(S - a*Co))
-
+        I = ideal(R, vec(S - a*core))
+        
         @assert dim(I) == 0 "Ideal dimension should be 0"
         @assert degree(I) == 1 "Ideal degree should be 1"
 

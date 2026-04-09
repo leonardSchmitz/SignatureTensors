@@ -27,7 +27,7 @@ For a sufficiently smooth path ``X:[0,1]\to \mathbb{R}^d``, its **truncated iter
 with entries
 ```math
 \sigma^{(\ell)}(X)_{w_1,\dots,w_\ell} := \int_{0 \le t_1 \le \dots \le t_\ell \le 1}
-\dot X_{w_1}(t_1)\cdots \dot X_{w_\ell}(t_\ell) \, dt_1 \cdots dt_\ell,
+\dot X_{w_1}(t_1)\cdots \dot X_{w_\ell}(t_\ell) \, \mathrm{d}t_1 \cdots \mathrm{d}t_\ell,
 \quad 1\le w_j \le d.
 ```
 
@@ -37,20 +37,26 @@ By Chen–Chow's theorem, the image of ``\sigma^{\le k}`` lies in the free nilpo
 ```@docs
 TruncatedTensorAlgebra
 TruncatedTensorAlgebraElem
-```
-
----
-
-## Methods
-
-### `TruncatedTensorAlgebra` 
-
-Accessor functions for the structural metadata of a `TruncatedTensorAlgebra`.
-```@docs
 truncation_level(::TruncatedTensorAlgebra)
 base_dimension(::TruncatedTensorAlgebra)
 base_algebra(::TruncatedTensorAlgebra)
 sequence_type(::TruncatedTensorAlgebra)
+```
+
+Standard algebraic operations on `TruncatedTensorAlgebraElem`. All operations respect the
+truncated tensor algebra structure: multiplication is the shuffle/group product (truncated
+at level $k$), and `exp`/`log` map between the Lie algebra and the Lie group $G_{d,k}$.
+
+```@docs
+Base.:+
+Base.:-
+Base.:*
+Base.:^
+Base.inv
+Base.exp
+Base.log
+Base.vec
+Base.:(==)
 ```
 
 ### `TruncatedTensorElem`
@@ -84,7 +90,7 @@ supported geometry types.
 | `:pwbln` | Piecewise bilinear membrane | `coef`, `shape`, `algorithm` (`:congruence` or `:LS26`) |
 | `:poly` *(membrane)* | Polynomial membrane | `coef`, `shape`, `algorithm` (`:congruence` or `:LS26`) |
 
-> For membrane types, set `sequence_type=:p2id` when constructing `[TruncatedTensorAlgebra](@ref TruncatedTensorAlgebra)`.
+> For membrane types, set `sequence_type=:p2id` when constructing [`TruncatedTensorAlgebra`](@ref).
 
 ```@docs
 sig
@@ -108,14 +114,15 @@ recover
 ## Barycenters
 
 Computation of Lie group barycenters on $G_{d,k}$, i.e. Fréchet means with respect to the
-group geodesic distance. Multiple algorithms are available:
+group geodesic distance [clausel2024barycenterfreenilpotentlie]. Multiple algorithms are available:
 
 | `algorithm` | Description |
 |-------------|-------------|
 | *(default)* | Polynomial surjection map |
-| `:geodesic` | Geodesic barycenter (Prop. 4.4, [AS25]) |
-| `:AS25trunc2` | Truncation-level-2 formula (Thm. 4.11, [AS25]) |
-| `:CDMSSU24aBCH` | Asymmetrized BCH series ([CDM+24]) |
+| `:geodesic` | Geodesic barycenter [amendola2025learning; Prop. 4.4](@cite) |
+| `:AS25trunc2` | Truncation-level-2 formula  [amendola2025learning; Thm. 4.11](@cite) |
+| `:CDMSSU24aBCH` | Asymmetrized BCH series [clausel2024barycenterfreenilpotentlie](@cite) |
+
 
 ```@docs
 bary
@@ -124,25 +131,7 @@ bary
 ---
 
 
-## Element Operations
 
-Standard algebraic operations on `TruncatedTensorAlgebraElem`. All operations respect the
-truncated tensor algebra structure: multiplication is the shuffle/group product (truncated
-at level $k$), and `exp`/`log` map between the Lie algebra and the Lie group $G_{d,k}$.
-
-```@docs
-Base.:+
-Base.:-
-Base.:*
-Base.:^
-Base.inv
-Base.exp
-Base.log
-Base.vec
-Base.:(==)
-```
-
----
 
 
 

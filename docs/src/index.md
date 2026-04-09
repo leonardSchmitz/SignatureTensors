@@ -18,7 +18,7 @@ Path signatures are fundamental objects in rough path theory that capture the es
 The package supports:
 
 - **Path signatures** — iterated-integrals signatures of piecewise linear, polynomial, spline, axis, and monomial paths over arbitrary OSCAR rings.
-- **Membrane signatures** — two-parameter (id-)signatures of piecewise bilinear and polynomial membranes, extending the one-parameter theory.
+- **Membrane signatures** — two-parameter (id-)signatures of piecewise bilinear and polynomial membranes, extending the one-parameter theory [lotter2024signature](@cite).
 - **Tensor learning** — recovery of paths from their signature tensors via polynomial systems and Gröbner bases, including the efficient algorithm from [schmitz2025efficientalgorithmtensorlearning](@cite).
 - **Lie group barycenters** — computation of Fréchet means on the free nilpotent Lie group $G_{d,k}$, with several algorithm options including BCH-based and polynomial map approaches.
 - **Algebraic operations** — group multiplication, inverse, logarithm, exponential, and graded projections on truncated tensor algebra elements.
@@ -56,10 +56,10 @@ T = TruncatedTensorAlgebra(QQ, d, k)
 C=sig(T, :axis)
 
 # Signature of a polynomial path t ↦ (t + 2t², 3t + 4t²)
-S=sig(T, :pwln, coef = QQ.[1 2; 3 4])
+S=sig(T, :pwln, coef = QQ[1 2; 3 4])
 
 # Path recovery from a signature tensor
-recover(S,Co=C)
+recover(S,core=C)
 ```
 
 ---

@@ -3,7 +3,7 @@
 Welcome to SignatureTensors!
 
 This package allows computing and working with signatures of rough paths
-using algebraic methods within OSCAR. Further information is available in our [Documentation](https://leonardschmitz.github.io/SignatureTensors/). 
+using algebraic methods within OSCAR. Further information is available in our [Documentation](https://leonardschmitz.github.io/SignatureTensors.jl/).
 
 No support is guaranteed.
 

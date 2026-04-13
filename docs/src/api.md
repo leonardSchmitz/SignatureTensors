@@ -5,9 +5,15 @@ CurrentModule = SignatureTensors
 
 # Documentation
 
+
+
 ---
 
 ## Types
+
+
+### `TruncatedTensorAlgebra`
+
 
 The core algebraic structures of the package. `TruncatedTensorAlgebra` defines the ambient space
 ```math
@@ -34,13 +40,32 @@ with entries
 By Chen–Chow's theorem, the image of ``\sigma^{\le k}`` lies in the free nilpotent Lie group
 ``\mathcal{G}_{d,k}`` [friz2010multidimensional; Theorem 7.28](@cite).
 
+
+
 ```@docs
 TruncatedTensorAlgebra
-TruncatedTensorAlgebraElem
+
+```
+The constructor of TruncatedTensorAlgebra{R} is flexible with respect to the choice of
+coefficients. In particular, it supports standard Julia numeric types such as Float64
+and other floating-point representations.
+Moreover, it integrates with the algebraic structures available in Oscar.jl, allowing
+the use of coefficient rings such as rational numbers or polynomial rings.
+
+```@docs
 truncation_level(::TruncatedTensorAlgebra)
 base_dimension(::TruncatedTensorAlgebra)
 base_algebra(::TruncatedTensorAlgebra)
 sequence_type(::TruncatedTensorAlgebra)
+```
+
+### `TruncatedTensorAlgebraElem`
+
+Accessor functions for the components of a `TruncatedTensorAlgebraElem`.
+```@docs
+TruncatedTensorAlgebraElem
+Base.parent(::TruncatedTensorAlgebraElem)
+tensor_sequence(::TruncatedTensorAlgebraElem)
 ```
 
 Standard algebraic operations on `TruncatedTensorAlgebraElem`. All operations respect the
@@ -59,13 +84,6 @@ Base.vec
 Base.:(==)
 ```
 
-### `TruncatedTensorElem`
-
-Accessor functions for the components of a `TruncatedTensorAlgebraElem`.
-```@docs
-Base.parent(::TruncatedTensorAlgebraElem)
-tensor_sequence(::TruncatedTensorAlgebraElem)
-```
 ---
 
 ## Signature Constructors
@@ -88,7 +106,7 @@ supported geometry types.
 | `:axis` *(membrane)* | Canonical axis membrane | `shape` |
 | `:mono` *(membrane)* | Monomial membrane | `shape` |
 | `:pwbln` | Piecewise bilinear membrane | `coef`, `shape`, `algorithm` (`:congruence` or `:LS26`) |
-| `:poly` *(membrane)* | Polynomial membrane | `coef`, `shape`, `algorithm` (`:congruence` or `:LS26`) |
+| `:poly` *(membrane)* | Polynomial membrane | `coef`, `shape`|
 
 > For membrane types, set `sequence_type=:p2id` when constructing [`TruncatedTensorAlgebra`](@ref).
 
@@ -98,7 +116,7 @@ sig
 
 ---
 
-## Tensor Learning & Path Recovery
+## Tensor Learning / Path Recovery
 
 Tools for the inverse problem of recovering a path from its signature tensor. `recover`
 solves the polynomial system $S = A * C$ using Gröbner bases, where $C$ is a core tensor
@@ -113,8 +131,21 @@ recover
 
 ## Barycenters
 
-Computation of Lie group barycenters on $G_{d,k}$, i.e. Fréchet means with respect to the
-group geodesic distance [clausel2024barycenterfreenilpotentlie]. Multiple algorithms are available:
+The expected signature of a family of paths is not necessarily itself a signature. Motivated by this, [clausel2024barycenterfreenilpotentlie,amendola2025learning](@cite) introduce the notion of a Lie group barycenter on signatures, following Buser and Karcher.
+
+Given $S_1,\dots,S_N\in\mathcal{G}_{d,k}$, the equation
+
+```math
+0 = \sum_{i=1}^N \log\!\big(M^{-1}\cdot S_i\big)
+```
+defines a unique element $M\in\mathcal{G}_{d,k}$, called the *Lie group barycenter*.
+
+By [amendola2025learning; Proposition 4.9](@cite), the solution map
+```math
+\mathsf{bary}:\mathcal{G}_{d,k}^N \to \mathcal{G}_{d,k}, \quad (S_1,\dots,S_N)\mapsto M
+```
+is a (non-commutative) polynomial surjection in the graded components. Our default implementation uses this polynomial map.
+
 
 | `algorithm` | Description |
 |-------------|-------------|

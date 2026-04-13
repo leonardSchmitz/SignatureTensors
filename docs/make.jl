@@ -1,11 +1,12 @@
 using Documenter
 using SignatureTensors
 using DocumenterCitations
+using Bibliography
 
-# Bibliografía
+#
+bib = CitationBibliography(joinpath(@__DIR__, "refs.bib"), style = :authoryear)
 
-bib = CitationBibliography(joinpath(@__DIR__, "refs.bib"), style = :numeric)
-# Generar la documentación
+
 makedocs(
     sitename = "SignatureTensors.jl",
     modules = [SignatureTensors],

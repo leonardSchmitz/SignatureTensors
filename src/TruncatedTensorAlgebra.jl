@@ -492,7 +492,7 @@ inside the truncated tensor algebra `T`.
   - `:point` – Constant path
   - `:mono` – Monomial membrane
   - `:axis` – Axis-aligned membrane, `algorithm` can be `:AFS19`[AFS2019](@cite) or `:Chen`
-  - `:poly` – Polynomial membrane; if `coef` is 2D, uses `sig2parPoly_fromMatrix`
+  - `:poly` – Polynomial membrane; if `coef ` is a matrix, it is interpreted as coefficients of a 2-parameter polynomial; otherwise, it is interpreted as a vector of coefficients for the monomial basis.
   - `:pwbln` – Piecewise bilinear path; `algorithm` can be `:congruence` or `:LS26` [amendola2026signaturevarietiessplines](@cite)
 
 # Notes

@@ -11,9 +11,22 @@ CollapsedDocStrings=true
 
 ---
 
+## Mathematical Background
+
+Path signatures, introduced by Terry Lyons in the framework of rough path theory
+[lyons1998differential, lyons2002system, lyons2007differential](@cite),
+provide a canonical and robust way to encode paths as algebraic objects via iterated integrals. This viewpoint has become fundamental in modern stochastic analysis and has been extensively developed in the literature, notably in the work of Friz and Victoir[friz2010multidimensional](@cite), as well as in contributions by researchers such as Massimiliano Gubinelli, Terry Lyons, and others. Further foundational and comprehensive treatments can be found in the monographs of Lyons, Caruana and Lévy [lyons2007differential](@cite), and Friz and Hairer [friz2020course](@cite).
+
+From an algebraic perspective, signatures take values in the tensor algebra and,
+when truncated, in the free nilpotent Lie group $G_{d,k}$. Their structure is deeply
+connected to classical results on iterated integrals due to Kuo-Tsai Chen [chen1957integration, chen1977iterated](@cite). Modern algebraic viewpoints connecting rough paths, Lie theory, and combinatorics are developed in [friz2010multidimensional, friz2020course](@cite).
+
+Beyond their analytical origins, signatures have found applications in a wide range
+of areas, including mathematical finance [cuchiero2026](@cite), machine learning [chevyrev2026](@cite), and topological data analysis [chevyrev2018persistence](@cite).
+
 ## Overview
 
-Path signatures are fundamental objects in rough path theory that capture the essential geometry of sequential data. This package provides a general algebraic framework for computing truncated signatures and working with them symbolically, leveraging the full power of OSCAR's ring arithmetic, Gröbner bases, and Lie theory.
+**SignatureTensors.jl** provides a general computational framework for working with truncated signatures of paths and membranes. It is designed to operate over both standard Julia numerical types (such as `Float64`, `Float32`, and other native floating-point formats) and exact algebraic structures in the [OSCAR](https://www.oscar-system.org) computer algebra system, including rings and polynomial rings. This dual design enables fast numerical experimentation as well as rigorous symbolic computation, leveraging OSCAR’s infrastructure for ring arithmetic, Gröbner bases, and Lie-theoretic methods.
 
 The package supports:
 
@@ -22,8 +35,6 @@ The package supports:
 - **Tensor learning** — recovery of paths from their signature tensors via polynomial systems and Gröbner bases, including the efficient algorithm from [schmitz2025efficientalgorithmtensorlearning](@cite).
 - **Lie group barycenters** — computation of Fréchet means on the free nilpotent Lie group $G_{d,k}$, with several algorithm options including BCH-based and polynomial map approaches.
 - **Algebraic operations** — group multiplication, inverse, logarithm, exponential, and graded projections on truncated tensor algebra elements.
-
-All constructions work over arbitrary OSCAR rings, making them compatible with symbolic computation over $\mathbb{Q}$, polynomial rings, rational function fields, and more.
 
 ---
 
